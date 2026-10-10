@@ -14,12 +14,31 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      # shortcut: bundle upload avoids browser folder loss; use source folders for regular development.
+      - name: Restore complete iOS project
+        run: |
+          if [ ! -f DriveFly-project.zip ]; then
+            echo '::error::Upload DriveFly-project.zip to the repository root before running.'
+            exit 1
+          fi
+          mkdir -p build/source
+          ditto -x -k DriveFly-project.zip build/source
       - name: Test and build iPhone app
-        run: bash build-macos.sh
+        run: |
+          set -o pipefail
+          bash build/source/build-macos.sh 2>&1 | tee build/build.log
       - name: Upload IPA for local re-signing
         uses: actions/upload-artifact@v7
         with:
           name: DriveFly-iOS-to-resign
-          path: build/DriveFly-iOS.ipa
+          path: build/source/build/DriveFly-iOS.ipa
           if-no-files-found: error
+          retention-days: 7
+      - name: Upload complete build log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: DriveFly-iOS-build-log
+          path: build/build.log
+          if-no-files-found: ignore
           retention-days: 7

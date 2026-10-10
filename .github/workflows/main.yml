@@ -1,0 +1,25 @@
+name: Build DriveFly iOS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Test and build iPhone app
+        run: bash build-macos.sh
+      - name: Upload IPA for local re-signing
+        uses: actions/upload-artifact@v7
+        with:
+          name: DriveFly-iOS-to-resign
+          path: build/DriveFly-iOS.ipa
+          if-no-files-found: error
+          retention-days: 7

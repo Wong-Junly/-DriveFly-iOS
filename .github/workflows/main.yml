@@ -43,3 +43,11 @@ jobs:
           path: build/build.log
           if-no-files-found: ignore
           retention-days: 7
+
+      - name: Upload simulator UI previews
+        uses: actions/upload-artifact@v7
+        with:
+          name: DriveFly-iOS-UI-previews
+          path: build/source/build/drivefly-ui-*.png
+          if-no-files-found: error
+          retention-days: 7
